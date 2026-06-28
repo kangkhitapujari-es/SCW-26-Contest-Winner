@@ -1,0 +1,868 @@
+<title>SCW'26 S1 — Contest Winner Analysis</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F2EEE6;
+  --surface: #FFFFFF;
+  --surface-alt: #FAF8F4;
+  --dark: #1A1410;
+  --maroon: #2B1A20;
+  --orange: #F5612A;
+  --orange-light: #FEE9E1;
+  --orange-mid: #F9C0A7;
+  --gold: #B8860A;
+  --gold-light: #FDF3DC;
+  --muted: #8C7E76;
+  --border: #E0D6CA;
+  --green: #236B42;
+  --green-light: #E4F5EC;
+  --red: #A02818;
+  --red-light: #FAEAE7;
+  --blue: #2A5090;
+  --blue-light: #E8EEF8;
+  --rank3: #4A7FA5;
+  --rank3-light: #E8F2F9;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--dark);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page-wrap { max-width: 1020px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* HEADER */
+.page-header { background: var(--maroon); padding: 44px 0 36px; margin-bottom: 44px; }
+.header-inner { max-width: 1020px; margin: 0 auto; padding: 0 28px; }
+.header-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
+.header-title { font-size: clamp(24px, 3.5vw, 38px); font-weight: 800; letter-spacing: -.025em; color: #F0EDE8; line-height: 1.15; text-wrap: balance; margin-bottom: 12px; }
+.header-sub { font-size: 14px; color: #B0A8A0; max-width: 540px; line-height: 1.6; }
+.header-meta { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 22px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.08); }
+.hm-item { font-size: 12px; color: #A0988E; }
+.hm-item strong { color: #E0DCD8; font-weight: 600; }
+
+/* SUMMARY STRIP */
+.summary-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 44px; }
+.summary-cell { background: var(--surface); padding: 18px 20px; }
+.sc-label { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.sc-val { font-size: 28px; font-weight: 800; letter-spacing: -.04em; color: var(--dark); font-variant-numeric: tabular-nums; line-height: 1; }
+.sc-val span { color: var(--orange); }
+.sc-note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* SECTION */
+.section-block { margin-bottom: 52px; }
+.section-label { font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin-bottom: 5px; }
+.section-title { font-size: 20px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 5px; text-wrap: balance; }
+.section-desc { font-size: 13px; color: var(--muted); margin-bottom: 24px; max-width: 580px; }
+.divider { height: 1px; background: var(--border); margin: 44px 0; }
+
+/* FUNNEL */
+.funnel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 4px; align-items: start; }
+@media (max-width: 680px) { .funnel-row { grid-template-columns: 1fr; } }
+
+.funnel-step-card { background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
+.funnel-step-header { display: flex; align-items: center; gap: 0; }
+.funnel-indicator { width: 5px; align-self: stretch; flex-shrink: 0; }
+.fi-start { background: var(--dark); }
+.fi-remove { background: var(--border); }
+.fi-final { background: var(--orange); }
+.funnel-step-main { flex: 1; padding: 14px 16px; }
+.funnel-count { font-size: 28px; font-weight: 800; letter-spacing: -.04em; font-variant-numeric: tabular-nums; color: var(--dark); line-height: 1; }
+.funnel-count.final-ct { color: var(--orange); font-size: 34px; }
+.funnel-label { font-weight: 700; font-size: 13px; color: var(--dark); margin-top: 2px; }
+.funnel-reason { font-size: 11.5px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+.funnel-badge { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; white-space: nowrap; margin: 14px 16px 14px 0; align-self: center; flex-shrink: 0; }
+.fb-remove { background: var(--red-light); color: var(--red); }
+.fb-pass { background: var(--green-light); color: var(--green); }
+.fb-final { background: var(--orange-light); color: var(--orange); }
+
+.funnel-arrow-row { text-align: center; color: var(--border); font-size: 18px; padding: 2px 0; }
+
+/* ELIMINATION TABLES inside funnel */
+.elim-detail { border-top: 1px solid var(--border); background: var(--surface-alt); }
+.elim-detail-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 8px 14px 4px; }
+.elim-mini { width: 100%; border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.elim-mini th { text-align: left; padding: 4px 14px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+.elim-mini td { padding: 5px 14px; border-bottom: 1px solid var(--border); color: var(--dark); }
+.elim-mini tr:last-child td { border-bottom: none; }
+.elim-mini td.name { font-weight: 600; }
+.elim-mini td.score { font-weight: 700; color: var(--dark); text-align: center; }
+.score-hi { color: var(--red); }
+.reason-tag { font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 6px; }
+.rt-customer { background: var(--blue-light); color: var(--blue); }
+.rt-pipeline { background: #F0EAF8; color: #6030A0; }
+.rt-icp { background: var(--red-light); color: var(--red); }
+.rt-noowner { background: #F0EDE6; color: #6A5A4A; }
+
+/* COMPARATIVE TABLE */
+.comp-table-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--surface); }
+.comp-table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; min-width: 780px; }
+.comp-table thead { background: var(--maroon); }
+.comp-table th { text-align: left; padding: 10px 14px; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #B0A098; white-space: nowrap; }
+.comp-table th.center { text-align: center; }
+.comp-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table tr.selected td { background: #FFF8F5; }
+.comp-table tr.selected td:first-child { border-left: 3px solid var(--orange); padding-left: 11px; }
+.comp-table tr:not(.selected):hover td { background: var(--surface-alt); }
+.comp-table td.name-col { font-weight: 700; }
+.comp-table td.co-col { color: var(--muted); font-size: 11.5px; }
+.comp-table td.center { text-align: center; }
+.score-dot { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-weight: 800; font-size: 13px; font-variant-numeric: tabular-nums; }
+.sd-high { background: var(--orange-light); color: var(--orange); }
+.sd-mid { background: var(--gold-light); color: var(--gold); }
+.sd-low { background: var(--surface-alt); color: var(--muted); }
+.signal-pill { font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 6px; display: inline-block; }
+.sp-open { background: var(--green-light); color: var(--green); }
+.sp-atc { background: var(--gold-light); color: var(--gold); }
+.sp-none { background: var(--surface-alt); color: var(--muted); }
+.sp-winner { background: var(--orange-light); color: var(--orange); }
+.check { color: var(--green); font-size: 13px; }
+.cross { color: var(--border); font-size: 13px; }
+.flag { color: var(--red); font-size: 11px; }
+.comp-table td.reason-col { font-size: 11px; color: var(--muted); }
+.comp-table td.reason-col.bold { color: var(--dark); font-weight: 600; }
+.winner-row-label { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); display: block; margin-top: 2px; }
+.icp-tag { font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 6px; }
+.icp-good { background: var(--green-light); color: var(--green); }
+.icp-weak { background: var(--red-light); color: var(--red); }
+
+/* WINNER CARDS */
+.winner-card { background: var(--surface); border: 1px solid var(--border); margin-bottom: 28px; overflow: hidden; }
+.wc-header { display: grid; grid-template-columns: 50px 1fr auto; align-items: center; gap: 16px; padding: 18px 22px; border-bottom: 2px solid var(--border); }
+.rank-badge { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; flex-shrink: 0; }
+.rb-1 { background: var(--orange); color: white; }
+.rb-2 { background: var(--gold-light); color: var(--gold); border: 1.5px solid var(--gold); }
+.rb-3 { background: var(--rank3-light); color: var(--rank3); border: 1.5px solid var(--rank3); }
+.wc-identity { min-width: 0; }
+.wc-name { font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+.wc-role { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.wc-co { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); margin-top: 3px; }
+.wc-score-block { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.wc-score-num { font-size: 32px; font-weight: 800; letter-spacing: -.04em; color: var(--orange); font-variant-numeric: tabular-nums; line-height: 1; }
+.wc-score-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.wc-bdr { font-size: 11px; color: var(--muted); }
+.wc-bdr strong { color: var(--dark); font-weight: 700; }
+
+/* Winner body — 4 panels */
+.wc-body { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-bottom: 1px solid var(--border); }
+@media (max-width: 720px) { .wc-body { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .wc-body { grid-template-columns: 1fr; } }
+.wc-panel { padding: 18px 18px; border-right: 1px solid var(--border); }
+.wc-panel:last-child { border-right: none; }
+.panel-label { font-size: 9px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; font-size: 12.5px; }
+.stat-key { color: var(--muted); flex-shrink: 0; }
+.stat-val { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.sv-orange { color: var(--orange); }
+.sv-green { color: var(--green); }
+.sv-gold { color: var(--gold); }
+
+.quote-block { margin-top: 12px; padding: 9px 11px; background: var(--orange-light); border-left: 3px solid var(--orange); font-size: 11.5px; line-height: 1.55; font-style: italic; }
+.quote-block-label { font-style: normal; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--orange); margin-bottom: 4px; }
+.quote-block.gold-q { background: var(--gold-light); border-color: var(--gold); }
+.quote-block.gold-q .quote-block-label { color: var(--gold); }
+.quote-block.blue-q { background: var(--rank3-light); border-color: var(--rank3); }
+.quote-block.blue-q .quote-block-label { color: var(--rank3); }
+
+.hs-row { margin-bottom: 10px; }
+.hs-key { font-size: 9px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+.hs-val { font-size: 12.5px; font-weight: 600; color: var(--dark); }
+.hs-val.open { color: var(--green); }
+.hs-val.atc { color: var(--gold); }
+
+.event-timeline { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.et-item { display: flex; align-items: flex-start; gap: 9px; font-size: 11.5px; }
+.et-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.et-dot.attended { background: var(--green); }
+.et-dot.noshow { background: var(--border); }
+.et-dot.call { background: var(--orange); }
+.et-text { color: var(--dark); line-height: 1.45; }
+.et-text .et-muted { color: var(--muted); }
+
+.flag-block { margin-top: 10px; padding: 8px 10px; background: #FDF8EC; border: 1px solid #E8D89A; font-size: 11.5px; line-height: 1.5; }
+.flag-label { font-size: 9px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #8A6A10; margin-bottom: 3px; }
+
+.backstory-text { font-size: 12.5px; color: var(--dark); line-height: 1.65; }
+.backstory-text strong { color: var(--orange); }
+
+/* BDR angle bar */
+.bdr-bar { background: var(--maroon); padding: 14px 22px; display: flex; align-items: flex-start; gap: 14px; }
+.bdr-bar-label { font-size: 9px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--orange); white-space: nowrap; margin-top: 2px; flex-shrink: 0; }
+.bdr-bar-text { font-size: 12.5px; color: #C8C0B8; line-height: 1.6; font-style: italic; }
+
+/* FINAL NOTE */
+.final-box { background: var(--maroon); padding: 26px 28px; margin-top: 40px; }
+.final-box p { font-size: 13.5px; color: #C8C0B8; line-height: 1.7; }
+.final-box strong { color: var(--orange); }
+
+.inline-tag { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; vertical-align: middle; }
+.it-lead { background: var(--green-light); color: var(--green); }
+.it-open { background: var(--green-light); color: var(--green); }
+</style>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="header-inner">
+    <div class="header-eyebrow">Sales Comp Week 2026 · Session 1 · Internal — Do Not Distribute</div>
+    <div class="header-title">Contest winner selection: the full case</div>
+    <p class="header-sub">Every filter, every score, every HubSpot signal — from 62 registrations to 3 shortlisted names. Built for the team before outreach goes out.</p>
+    <div class="header-meta">
+      <div class="hm-item"><strong>Session</strong> · Mon June 23, 2026 · 12 PM EST</div>
+      <div class="hm-item"><strong>Data</strong> · Goldcast (Attendees · Engagement · Chat) + HubSpot CRM (live browser read)</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<!-- SUMMARY STRIP -->
+<div class="summary-strip">
+  <div class="summary-cell">
+    <div class="sc-label">Filters applied</div>
+    <div class="sc-val">6</div>
+    <div class="sc-note">layered qualification criteria</div>
+  </div>
+  <div class="summary-cell">
+    <div class="sc-label">Qualified pool</div>
+    <div class="sc-val">9</div>
+    <div class="sc-note">leads scored across 5 axes</div>
+  </div>
+  <div class="summary-cell">
+    <div class="sc-label">Shortlisted</div>
+    <div class="sc-val"><span>3</span></div>
+    <div class="sc-note">BDR-ready winners</div>
+  </div>
+</div>
+
+<!-- LAYER 1: FUNNEL -->
+<div class="section-block">
+  <div class="section-label">Layer 1 — Qualification</div>
+  <div class="section-title">The filter funnel</div>
+  <div class="section-desc">Six filters applied in sequence. Each step shows who was removed and why — including high scorers who didn't make it through.</div>
+
+  <!-- Step 1 -->
+  <div class="funnel-step-card" style="margin-bottom:3px;">
+    <div class="funnel-step-header">
+      <div class="funnel-indicator fi-start"></div>
+      <div class="funnel-step-main">
+        <div class="funnel-count">62</div>
+        <div class="funnel-label">Total registrations, Session 1</div>
+        <div class="funnel-reason">Everyone who signed up for the June 23 session — the starting pool.</div>
+      </div>
+      <div class="funnel-badge fb-pass">Start</div>
+    </div>
+  </div>
+
+  <div class="funnel-arrow-row">↓</div>
+
+  <!-- Step 2 -->
+  <div class="funnel-step-card" style="margin-bottom:3px;">
+    <div class="funnel-step-header">
+      <div class="funnel-indicator fi-remove"></div>
+      <div class="funnel-step-main">
+        <div class="funnel-count">50</div>
+        <div class="funnel-label">Attended live (Goldcast timestamp confirmed)</div>
+        <div class="funnel-reason">12 registrants never joined. No live engagement signal — removed from consideration.</div>
+      </div>
+      <div class="funnel-badge fb-remove">−12 no-shows</div>
+    </div>
+  </div>
+
+  <div class="funnel-arrow-row">↓</div>
+
+  <!-- Step 3: WK removal with table -->
+  <div class="funnel-step-card" style="margin-bottom:3px;">
+    <div class="funnel-step-header">
+      <div class="funnel-indicator fi-remove"></div>
+      <div class="funnel-step-main">
+        <div class="funnel-count">43</div>
+        <div class="funnel-label">Removed WoltersKluwer domain (@wolterskluwer.com)</div>
+        <div class="funnel-reason">7 contacts from Dillon Anderson's company (external speaker). Despite high engagement — not prospects.</div>
+      </div>
+      <div class="funnel-badge fb-remove">−7 excluded</div>
+    </div>
+    <div class="elim-detail">
+      <div class="elim-detail-label">Removed — WoltersKluwer contacts</div>
+      <table class="elim-mini">
+        <thead><tr><th>Name</th><th>Role</th><th class="center">Score</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td class="name">Helen Rendos</td><td>Sr Mgr, Sales Compensation</td><td class="score score-hi">10</td><td><span class="reason-tag rt-icp">Speaker's company</span></td></tr>
+          <tr><td class="name">Atul Marotkar</td><td>CCH SureTax</td><td class="score score-hi">10</td><td><span class="reason-tag rt-icp">Speaker's company</span></td></tr>
+          <tr><td class="name">Puneeta Pandey</td><td>CCH SureTax</td><td class="score score-hi">9</td><td><span class="reason-tag rt-icp">Speaker's company</span></td></tr>
+          <tr><td class="name">Suraj Barali</td><td>CCH SureTax</td><td class="score">9</td><td><span class="reason-tag rt-icp">Speaker's company</span></td></tr>
+          <tr><td class="name">Kruti Kansagara</td><td>Financial Planning Mgr, Sales Comp</td><td class="score">6</td><td><span class="reason-tag rt-icp">Speaker's company</span></td></tr>
+          <tr><td class="name">Nikhil Joshi</td><td>Wolters Kluwer</td><td class="score">7</td><td><span class="reason-tag rt-icp">Speaker's company</span></td></tr>
+          <tr><td class="name">Lipika Paul</td><td>WK</td><td class="score">3</td><td><span class="reason-tag rt-icp">Speaker's company</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="funnel-arrow-row">↓</div>
+
+  <!-- Step 4: Internal + speakers -->
+  <div class="funnel-step-card" style="margin-bottom:3px;">
+    <div class="funnel-step-header">
+      <div class="funnel-indicator fi-remove"></div>
+      <div class="funnel-step-main">
+        <div class="funnel-count">38</div>
+        <div class="funnel-label">Removed Everstage team + speakers</div>
+        <div class="funnel-reason">Jose (host), Vignesh, Kangkhita (mktg), Matt Flotard (Gong, speaker) — present in Goldcast but not contestants.</div>
+      </div>
+      <div class="funnel-badge fb-remove">−5 internal</div>
+    </div>
+  </div>
+
+  <div class="funnel-arrow-row">↓</div>
+
+  <!-- Step 5: HubSpot lifecycle -->
+  <div class="funnel-step-card" style="margin-bottom:3px;">
+    <div class="funnel-step-header">
+      <div class="funnel-indicator fi-remove"></div>
+      <div class="funnel-step-main">
+        <div class="funnel-count">20</div>
+        <div class="funnel-label">HubSpot cross-reference — lifecycle = Lead only</div>
+        <div class="funnel-reason">Every remaining attendee looked up in HubSpot. Removed existing customers, contacts already in demo/pipeline stage, and non-ICP operators (consultants, competitors).</div>
+      </div>
+      <div class="funnel-badge fb-remove">−18 wrong stage</div>
+    </div>
+    <div class="elim-detail">
+      <div class="elim-detail-label">Removed — wrong lifecycle stage or non-ICP</div>
+      <table class="elim-mini">
+        <thead><tr><th>Name</th><th>Company</th><th class="center">Score</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td class="name">Melissa Crawford</td><td>Growth Arc Strategies</td><td class="score score-hi">10</td><td><span class="reason-tag rt-icp">Non-ICP — solo consultant</span></td></tr>
+          <tr><td class="name">Adriana Gomez</td><td>BioTissue</td><td class="score score-hi">10</td><td><span class="reason-tag rt-customer">Customer — 2 deals</span></td></tr>
+          <tr><td class="name">Kavita Jayanth</td><td>Everlaw</td><td class="score score-hi">9</td><td><span class="reason-tag rt-pipeline">Demo Scheduled</span></td></tr>
+          <tr><td class="name">Andrew Giordano</td><td>SalesOpsMonster</td><td class="score score-hi">9</td><td><span class="reason-tag rt-icp">Non-ICP — solo founder</span></td></tr>
+          <tr><td class="name">Tammy Gayken</td><td>Salesforce</td><td class="score score-hi">9</td><td><span class="reason-tag rt-icp">Non-ICP — Salesforce employee</span></td></tr>
+          <tr><td class="name">K Szaboova</td><td>Criteo</td><td class="score">8</td><td><span class="reason-tag rt-pipeline">Non-lead stage · Last activity May 2024</span></td></tr>
+          <tr><td class="name">Tonja Stewart</td><td>Everbridge</td><td class="score">8</td><td><span class="reason-tag rt-pipeline">Demo Scheduled — 1 deal</span></td></tr>
+          <tr><td class="name">Juliana Mejia*</td><td>Forter</td><td class="score">7</td><td style="color:var(--green); font-weight:600;">✓ Passes — lead</td></tr>
+          <tr><td class="name">Vishal T</td><td>HighRadius</td><td class="score">7</td><td><span class="reason-tag rt-pipeline">Demo Scheduled</span></td></tr>
+          <tr><td class="name">Steven Lum</td><td>Philip Morris Intl</td><td class="score">7</td><td><span class="reason-tag rt-pipeline">Non-lead stage</span></td></tr>
+          <tr><td class="name">Ryan Persaud</td><td>Komodo Health</td><td class="score">6</td><td><span class="reason-tag rt-pipeline">Demo Scheduled</span></td></tr>
+          <tr><td class="name">wlo (Shutterstock)</td><td>Shutterstock</td><td class="score">6</td><td><span class="reason-tag rt-pipeline">Non-lead · 1 deal</span></td></tr>
+          <tr><td class="name">spoernom</td><td>Cisco</td><td class="score">5</td><td><span class="reason-tag rt-pipeline">Non-lead stage</span></td></tr>
+          <tr><td class="name">dwills</td><td>Diligent</td><td class="score">4</td><td><span class="reason-tag rt-customer">Customer</span></td></tr>
+          <tr><td class="name">Justin Rosenblum</td><td>Thomson Reuters</td><td class="score">3</td><td><span class="reason-tag rt-customer">Customer</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="funnel-arrow-row">↓</div>
+
+  <!-- Step 6: BDR owner -->
+  <div class="funnel-step-card" style="margin-bottom:3px;">
+    <div class="funnel-step-header">
+      <div class="funnel-indicator fi-remove"></div>
+      <div class="funnel-step-main">
+        <div class="funnel-count">9</div>
+        <div class="funnel-label">Owner must be on the 26-person active BDR roster</div>
+        <div class="funnel-reason">Remaining contacts cross-checked against the BDR list. 3 had no owner assigned — no BDR to route to. Removed. All resolved owner IDs confirmed active.</div>
+      </div>
+      <div class="funnel-badge fb-remove">−3 no owner</div>
+    </div>
+    <div class="elim-detail">
+      <div class="elim-detail-label">Removed — no HubSpot owner assigned</div>
+      <table class="elim-mini">
+        <thead><tr><th>Email</th><th>Company</th><th class="center">Score</th><th>Issue</th></tr></thead>
+        <tbody>
+          <tr><td class="name">jgranado@preludeedc.com</td><td>Prelude</td><td class="score">8</td><td><span class="reason-tag rt-noowner">No BDR assigned</span></td></tr>
+          <tr><td class="name">cade@incentivedge.com (Veeam)</td><td>Veeam</td><td class="score">7</td><td><span class="reason-tag rt-noowner">No BDR assigned</span></td></tr>
+          <tr><td class="name">abimbola@compswell.com</td><td>Compswell</td><td class="score">5</td><td><span class="reason-tag rt-noowner">No BDR assigned</span></td></tr>
+        </tbody>
+      </table>
+      <div style="padding:8px 14px 10px; font-size:11px; color:var(--muted);">Owner IDs resolved for retained contacts: <strong style="color:var(--dark);">Kevin Peter · Aravindan · Abineswari Sampath · Kevin Emmanuel · Sanskar Shrivastava · Siddharth S</strong> — all confirmed on the BDR roster.</div>
+    </div>
+  </div>
+
+  <div class="funnel-arrow-row">↓</div>
+
+  <!-- Final -->
+  <div class="funnel-step-card">
+    <div class="funnel-step-header">
+      <div class="funnel-indicator fi-final"></div>
+      <div class="funnel-step-main">
+        <div class="funnel-count final-ct">3</div>
+        <div class="funnel-label">Final shortlist — scored across 5 axes, one per company</div>
+        <div class="funnel-reason">All 9 qualified leads ranked on Goldcast signals, HubSpot backstory, ICP fit, and pain signal strength. Top 3 selected — each from a different company, owned by a different BDR.</div>
+      </div>
+      <div class="funnel-badge fb-final">Winners</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- LAYER 2: COMPARATIVE SCORING -->
+<div class="section-block">
+  <div class="section-label">Layer 2 — Scoring</div>
+  <div class="section-title">All 9 qualified leads, ranked</div>
+  <div class="section-desc">Every contact that survived all 6 filters scored across five axes. Top 3 highlighted — and why the raw Goldcast score alone doesn't determine the winner.</div>
+
+  <!-- Scoring key -->
+  <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:20px;">
+    <div style="background:var(--surface); border:1px solid var(--border); padding:12px 13px;">
+      <div style="font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px;">Goldcast score</div>
+      <div style="font-size:11.5px; color:var(--dark); line-height:1.5;">Live 0–10 composite: time, polls, Q&A, chat, curveball responses</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); padding:12px 13px;">
+      <div style="font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px;">Time in session</div>
+      <div style="font-size:11.5px; color:var(--dark); line-height:1.5;">Minutes watched live. Max possible ~60 min</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); padding:12px 13px;">
+      <div style="font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px;">Poll signal</div>
+      <div style="font-size:11.5px; color:var(--dark); line-height:1.5;">Esp. "Would a 1:1 consultation be useful?" + pain signals</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); padding:12px 13px;">
+      <div style="font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px;">ICP + title</div>
+      <div style="font-size:11.5px; color:var(--dark); line-height:1.5;">Fast-growing software team. Comp/RevOps decision-maker level</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); padding:12px 13px;">
+      <div style="font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px;">HubSpot backstory</div>
+      <div style="font-size:11.5px; color:var(--dark); line-height:1.5;">Lead status, prior events, call history, BDR momentum</div>
+    </div>
+  </div>
+
+  <div class="comp-table-wrap">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Company · Title</th>
+          <th class="center">G-Score</th>
+          <th class="center">Time</th>
+          <th class="center">Polls</th>
+          <th class="center">Chat</th>
+          <th>ICP</th>
+          <th>HS Status</th>
+          <th>BDR</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="selected">
+          <td style="font-weight:800; color:var(--orange);">1</td>
+          <td class="name-col">Jordan Trader<span class="winner-row-label">Winner #1</span></td>
+          <td class="co-col">Honeycomb.io · Sr Financial Analyst</td>
+          <td class="center"><span class="score-dot sd-high">8</span></td>
+          <td class="center" style="font-weight:700;">30m</td>
+          <td class="center"><span class="check">✓</span><br><span style="font-size:9px; color:var(--red);">Pain signal</span></td>
+          <td class="center"><span class="check">✓</span></td>
+          <td><span class="icp-tag icp-good">Software</span></td>
+          <td><span class="signal-pill sp-open">OPEN</span></td>
+          <td style="font-size:11.5px;">Abineswari</td>
+          <td class="reason-col bold">Repeat attendee · Tier A prior event · 6 calls no answer · contest breaks through</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700; color:var(--muted);">2</td>
+          <td class="name-col">Amy Panno</td>
+          <td class="co-col">The Manitowoc Co · Sr Comp Analyst</td>
+          <td class="center"><span class="score-dot sd-high">8</span></td>
+          <td class="center" style="font-weight:700;">44.5m</td>
+          <td class="center"><span class="check">✓</span><br><span style="font-size:9px; color:var(--muted);">"Sorted for now"</span></td>
+          <td class="center"><span class="cross">–</span></td>
+          <td><span class="icp-tag icp-weak">Mfg</span></td>
+          <td><span class="signal-pill sp-atc">ATC</span></td>
+          <td style="font-size:11.5px;">Kevin Peter</td>
+          <td class="reason-col" style="color:var(--red);">Industrial/mfg ICP · Poll says "sorted" · ATC status</td>
+        </tr>
+        <tr class="selected">
+          <td style="font-weight:800; color:var(--orange);">3</td>
+          <td class="name-col">Jim Foley<span class="winner-row-label">Winner #2</span></td>
+          <td class="co-col">Merative · Sales Incentive Director</td>
+          <td class="center"><span class="score-dot sd-mid">6</span></td>
+          <td class="center" style="font-weight:700;">44m</td>
+          <td class="center"><span class="cross">–</span></td>
+          <td class="center"><span class="check">✓</span></td>
+          <td><span class="icp-tag icp-good">Healthcare IT</span></td>
+          <td><span class="signal-pill sp-open">OPEN</span></td>
+          <td style="font-size:11.5px;">Kevin Emmanuel</td>
+          <td class="reason-col bold">Most senior title · BDR touched day before · 2 events same day · jumps Amy on ICP + title</td>
+        </tr>
+        <tr class="selected">
+          <td style="font-weight:800; color:var(--orange);">4</td>
+          <td class="name-col">Juliana Mejia<span class="winner-row-label">Winner #3</span></td>
+          <td class="co-col">Forter · Analyst, Commissions</td>
+          <td class="center"><span class="score-dot sd-mid">7</span></td>
+          <td class="center" style="font-weight:700;">44.5m</td>
+          <td class="center"><span class="cross">–</span></td>
+          <td class="center"><span class="cross">–</span></td>
+          <td><span class="icp-tag icp-good">Software</span></td>
+          <td><span class="signal-pill sp-none">—</span></td>
+          <td style="font-size:11.5px;">Aravindan</td>
+          <td class="reason-col bold">Tier C→Score 7 trajectory · Fraud prevention software · Runs commissions daily</td>
+        </tr>
+        <tr>
+          <td style="color:var(--muted);">5</td>
+          <td class="name-col">Karan D</td>
+          <td class="co-col">SecureAuth · Chief Financial Officer</td>
+          <td class="center"><span class="score-dot sd-mid">6</span></td>
+          <td class="center">44.5m</td>
+          <td class="center"><span class="cross">–</span></td>
+          <td class="center"><span class="cross">–</span></td>
+          <td><span class="icp-tag icp-good">Software</span></td>
+          <td><span class="signal-pill sp-none">—</span></td>
+          <td style="font-size:11.5px;">Abineswari</td>
+          <td class="reason-col">CFO title (non-comp) · No polls/chat · Same BDR as Jordan → one-per-company</td>
+        </tr>
+        <tr>
+          <td style="color:var(--muted);">6</td>
+          <td class="name-col">Lindsay Akers</td>
+          <td class="co-col">LightBox Holdings · RevOps Manager</td>
+          <td class="center"><span class="score-dot sd-low">5</span></td>
+          <td class="center">44.3m</td>
+          <td class="center"><span class="cross">–</span></td>
+          <td class="center"><span class="check">✓</span></td>
+          <td><span class="icp-tag icp-weak">Real estate</span></td>
+          <td><span class="signal-pill sp-none">—</span></td>
+          <td style="font-size:11.5px;">Aravindan</td>
+          <td class="reason-col">0 HubSpot notes · Real estate data co · Same BDR as Juliana</td>
+        </tr>
+        <tr>
+          <td style="color:var(--muted);">7</td>
+          <td class="name-col">Marlena Vasquez</td>
+          <td class="co-col">Anrok · Head of GTM Operations</td>
+          <td class="center"><span class="score-dot sd-low">4</span></td>
+          <td class="center">40m</td>
+          <td class="center"><span class="cross">–</span></td>
+          <td class="center"><span class="check">✓</span></td>
+          <td><span class="icp-tag icp-good">Software</span></td>
+          <td><span class="signal-pill sp-atc">ATC</span></td>
+          <td style="font-size:11.5px;">Sanskar</td>
+          <td class="reason-col">Score 4 · ATC · Chat: "so we're too late?" — softer signal</td>
+        </tr>
+        <tr>
+          <td style="color:var(--muted);">8</td>
+          <td class="name-col">J. Thompson</td>
+          <td class="co-col">BigID · Sr Compensation Manager</td>
+          <td class="center"><span class="score-dot sd-low">3</span></td>
+          <td class="center">26.5m</td>
+          <td class="center"><span class="cross">–</span></td>
+          <td class="center"><span class="cross">–</span></td>
+          <td><span class="icp-tag icp-good">Software</span></td>
+          <td><span class="signal-pill sp-open">OPEN</span></td>
+          <td style="font-size:11.5px;">Siddharth S</td>
+          <td class="reason-col">Low score · Short time · No signals · Last HS activity Jul 2025</td>
+        </tr>
+        <tr>
+          <td style="color:var(--muted);">9</td>
+          <td class="name-col">Kathleen Tate</td>
+          <td class="co-col">Kyriba · Commission Manager</td>
+          <td class="center"><span class="score-dot sd-low">2</span></td>
+          <td class="center">24.5m</td>
+          <td class="center"><span class="cross">–</span></td>
+          <td class="center"><span class="check">✓</span></td>
+          <td><span class="icp-tag icp-good">Software</span></td>
+          <td><span class="signal-pill sp-open">OPEN</span></td>
+          <td style="font-size:11.5px;">Aravindan</td>
+          <td class="reason-col">Lowest score · Short time · Same BDR as Juliana</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top:10px; font-size:11.5px; color:var(--muted);">* Jim Foley ranks #2 over Amy Panno despite lower Goldcast score because: Sales Incentive Director is the most comp-specific senior title in the pool; Merative is a healthcare IT company (stronger ICP than industrial manufacturing); OPEN vs ATTEMPTED_TO_CONTACT; Amy said "sorted for now" on the consultation poll, closing the outreach angle.</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- LAYER 3: WINNER DEEP DIVES -->
+<div class="section-block">
+  <div class="section-label">Layer 3 — Deep dive</div>
+  <div class="section-title">The three winners, in full</div>
+  <div class="section-desc">Every signal we have — Goldcast session data, poll verbatims, HubSpot timeline, call history, and the BDR angle for outreach.</div>
+
+  <!-- WINNER 1 -->
+  <div class="winner-card">
+    <div class="wc-header">
+      <div class="rank-badge rb-1">#1</div>
+      <div class="wc-identity">
+        <div class="wc-name">Jordan Trader</div>
+        <div class="wc-role">Senior Financial Analyst</div>
+        <div class="wc-co">Honeycomb.io &nbsp;·&nbsp; Observability software</div>
+      </div>
+      <div class="wc-score-block">
+        <div class="wc-score-num">8</div>
+        <div class="wc-score-label">Goldcast score</div>
+        <div class="wc-bdr">BDR: <strong>Abineswari Sampath</strong></div>
+      </div>
+    </div>
+
+    <div class="wc-body">
+      <!-- Panel 1: Session -->
+      <div class="wc-panel">
+        <div class="panel-label">Session 1 signals</div>
+        <div class="stat-row"><span class="stat-key">Goldcast score</span><span class="stat-val sv-orange">8 / 10</span></div>
+        <div class="stat-row"><span class="stat-key">Time watched live</span><span class="stat-val">30 min</span></div>
+        <div class="stat-row"><span class="stat-key">Polls answered</span><span class="stat-val">1 of 4</span></div>
+        <div class="stat-row"><span class="stat-key">Chat messages</span><span class="stat-val">1 (greeting)</span></div>
+        <div class="stat-row"><span class="stat-key">CTA clicked</span><span class="stat-val" style="color:var(--muted);">No</span></div>
+        <div class="quote-block">
+          <div class="quote-block-label">Poll answered: catching comp problems early?</div>
+          "Not really — we tend to find out late."
+        </div>
+      </div>
+
+      <!-- Panel 2: HubSpot -->
+      <div class="wc-panel">
+        <div class="panel-label">HubSpot status</div>
+        <div class="hs-row">
+          <div class="hs-key">Lifecycle stage</div>
+          <div class="hs-val"><span class="inline-tag it-lead">Lead</span></div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Lead status</div>
+          <div class="hs-val open">OPEN</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Created in HubSpot</div>
+          <div class="hs-val">Jan 30, 2026</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Website visits</div>
+          <div class="hs-val">4 visits · 2 pages · Last: May 26</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Segment memberships</div>
+          <div class="hs-val">27 segments</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Associated deals</div>
+          <div class="hs-val">0 — clean pipeline</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Total activities logged</div>
+          <div class="hs-val">46</div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Event + call history -->
+      <div class="wc-panel">
+        <div class="panel-label">Event & call timeline</div>
+        <div class="event-timeline">
+          <div class="et-item"><div class="et-dot call"></div><div class="et-text"><strong>Jun 26</strong> — Abineswari calls (Nooks · no answer) <span class="et-muted">— day after session</span></div></div>
+          <div class="et-item"><div class="et-dot call"></div><div class="et-text"><strong>Jun 23</strong> — Abineswari calls (Nooks · no answer) <span class="et-muted">— session day</span></div></div>
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>Jun 23</strong> — SCW Session 1 · Score 8 · 30 min</div></div>
+          <div class="et-item"><div class="et-dot noshow"></div><div class="et-text"><strong>Jun</strong> — "Quarter-Close Playbook" · <span class="et-muted">registered · no show</span></div></div>
+          <div class="et-item"><div class="et-dot call"></div><div class="et-text"><strong>Jun 18</strong> — Abineswari calls · no answer</div></div>
+          <div class="et-item"><div class="et-dot noshow"></div><div class="et-text"><strong>May–Jun</strong> — "Four Weeks to Q2 Close" · <span class="et-muted">registered · no show</span></div></div>
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>Jun 1</strong> — Live Demo S1 (on-demand) · Score 3</div></div>
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>May 1</strong> — Live Demo (earlier series) · <strong style="color:var(--orange);">Tier A · Score 9</strong></div></div>
+          <div class="et-item"><div class="et-dot call"></div><div class="et-text"><strong>May 28, Mar 13</strong> — Prior calls · no answer</div></div>
+        </div>
+      </div>
+
+      <!-- Panel 4: Why -->
+      <div class="wc-panel">
+        <div class="panel-label">Why this person</div>
+        <div class="backstory-text">
+          Jordan is not a one-off attendee. At the May Live Demo, they were <strong>Tier A, score 9</strong> and asked this in Q&A:
+          <br><br>
+          <em style="font-size:11.5px; color:var(--muted); display:block; line-height:1.6;">"Should Finance be more plugged in and involved in pipe gen conversations to keep an eye on whether our comp plan is paying people to fill the wrong pipeline?"</em>
+          <br>
+          That is an active, live comp strategy problem. They were a no-show on two subsequent events — but chose to show up and stay 30 minutes at SCW. Selective attendance makes this more deliberate.<br><br>
+          <strong>Abineswari has made 6 calls with zero answers.</strong> The contest win is the first warm opening in a 5-month sequence.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- WINNER 2 -->
+  <div class="winner-card">
+    <div class="wc-header">
+      <div class="rank-badge rb-2">#2</div>
+      <div class="wc-identity">
+        <div class="wc-name">Jim Foley</div>
+        <div class="wc-role">Sales Incentive Director</div>
+        <div class="wc-co">Merative &nbsp;·&nbsp; Healthcare IT</div>
+      </div>
+      <div class="wc-score-block">
+        <div class="wc-score-num" style="color:var(--gold);">6</div>
+        <div class="wc-score-label">Goldcast score</div>
+        <div class="wc-bdr">BDR: <strong>Kevin Emmanuel</strong></div>
+      </div>
+    </div>
+
+    <div class="wc-body">
+      <!-- Panel 1 -->
+      <div class="wc-panel">
+        <div class="panel-label">Session 1 signals</div>
+        <div class="stat-row"><span class="stat-key">Goldcast score</span><span class="stat-val sv-gold">6 / 10</span></div>
+        <div class="stat-row"><span class="stat-key">Time watched live</span><span class="stat-val sv-orange">44 min</span></div>
+        <div class="stat-row"><span class="stat-key">Polls answered</span><span class="stat-val" style="color:var(--muted);">0</span></div>
+        <div class="stat-row"><span class="stat-key">Chat messages</span><span class="stat-val">1 (greeting)</span></div>
+        <div class="stat-row"><span class="stat-key">CTA clicked</span><span class="stat-val" style="color:var(--muted);">No</span></div>
+        <div class="quote-block gold-q">
+          <div class="quote-block-label">Context on 44 minutes</div>
+          A Sales Incentive Director who spent 44 minutes in "5 Mistakes That Kill H2" is there because the topic is live on their desk. No polls needed — the attendance is the signal.
+        </div>
+      </div>
+
+      <!-- Panel 2 -->
+      <div class="wc-panel">
+        <div class="panel-label">HubSpot status</div>
+        <div class="hs-row">
+          <div class="hs-key">Lifecycle stage</div>
+          <div class="hs-val"><span class="inline-tag it-lead">Lead</span></div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Lead status</div>
+          <div class="hs-val open">OPEN</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Created in HubSpot</div>
+          <div class="hs-val">Nov 19, 2025</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Last BDR activity</div>
+          <div class="hs-val sv-green">Jun 22 — day before session</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Total activities logged</div>
+          <div class="hs-val">46</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Associated deals</div>
+          <div class="hs-val">0 — clean pipeline</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Title seniority in pool</div>
+          <div class="hs-val" style="color:var(--orange);">Most senior comp title of 9</div>
+        </div>
+      </div>
+
+      <!-- Panel 3 -->
+      <div class="wc-panel">
+        <div class="panel-label">Event timeline</div>
+        <div class="event-timeline">
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>Jun 23</strong> — SCW Session 1 · Score 6 · 44 min</div></div>
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>Jun 23</strong> — Also engaged: <em>"The End of Manual RevOps (Finally)"</em> <span class="et-muted">— updated profile on same day</span></div></div>
+          <div class="et-item"><div class="et-dot call"></div><div class="et-text"><strong>Jun 22</strong> — Kevin Emmanuel touches the account</div></div>
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>Prior</strong> — "AI in Recruiting" webinar · Multi-topic engagement</div></div>
+        </div>
+        <div class="quote-block gold-q" style="margin-top:14px;">
+          <div class="quote-block-label">Cross-event signal</div>
+          Two separate Everstage events engaged in one day — SCW and "The End of Manual RevOps." Cross-topic interest in comp + RevOps automation reinforces the pitch.
+        </div>
+      </div>
+
+      <!-- Panel 4 -->
+      <div class="wc-panel">
+        <div class="panel-label">Why this person</div>
+        <div class="backstory-text">
+          <strong>Sales Incentive Director</strong> is the most senior and directly comp-accountable title across all 9 qualified leads. His job is to design and run sales incentives at Merative — comp debt isn't background noise, it's his KPI.<br><br>
+          He didn't ask questions or vote in polls — but he stayed 44 minutes in a session specifically titled "5 Mistakes That Kill H2." That commitment, combined with Kevin touching him the day before the event and his same-day engagement with a second Everstage event, tells a clear story.<br><br>
+          <strong>Kevin's sequence was warm going in. The win makes it hot.</strong> Cleanest title-to-topic alignment in the pool.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- WINNER 3 -->
+  <div class="winner-card">
+    <div class="wc-header">
+      <div class="rank-badge rb-3">#3</div>
+      <div class="wc-identity">
+        <div class="wc-name">Juliana Mejia</div>
+        <div class="wc-role">Analyst, Commissions</div>
+        <div class="wc-co">Forter &nbsp;·&nbsp; Fraud protection software (Computer Software — HubSpot confirmed)</div>
+      </div>
+      <div class="wc-score-block">
+        <div class="wc-score-num" style="color:var(--rank3);">7</div>
+        <div class="wc-score-label">Goldcast score</div>
+        <div class="wc-bdr">BDR: <strong>Aravindan</strong></div>
+      </div>
+    </div>
+
+    <div class="wc-body">
+      <!-- Panel 1 -->
+      <div class="wc-panel">
+        <div class="panel-label">Session 1 signals</div>
+        <div class="stat-row"><span class="stat-key">Goldcast score</span><span class="stat-val" style="color:var(--rank3);">7 / 10</span></div>
+        <div class="stat-row"><span class="stat-key">Time watched live</span><span class="stat-val sv-orange">44.5 min</span></div>
+        <div class="stat-row"><span class="stat-key">Polls answered</span><span class="stat-val" style="color:var(--muted);">0</span></div>
+        <div class="stat-row"><span class="stat-key">Chat messages</span><span class="stat-val" style="color:var(--muted);">0</span></div>
+        <div class="stat-row"><span class="stat-key">Watched on-demand</span><span class="stat-val" style="color:var(--muted);">No</span></div>
+        <div class="quote-block blue-q">
+          <div class="quote-block-label">Trajectory signal</div>
+          Live Demo (May 27): Tier C · Score 1 · 1 min live. SCW Session 1 (June 23): Score 7 · 44.5 min. One event to the next — from near-zero to full engagement.
+        </div>
+      </div>
+
+      <!-- Panel 2 -->
+      <div class="wc-panel">
+        <div class="panel-label">HubSpot status</div>
+        <div class="hs-row">
+          <div class="hs-key">Lifecycle stage</div>
+          <div class="hs-val"><span class="inline-tag it-lead">Lead</span></div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Lead status</div>
+          <div class="hs-val" style="color:var(--muted);">Not set</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Last BDR activity</div>
+          <div class="hs-val">Jun 3, 2026</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">HubSpot notes updated</div>
+          <div class="hs-val sv-green">Jun 27 — Aravindan already logged SCW</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Industry (HubSpot)</div>
+          <div class="hs-val sv-green">Computer Software ✓</div>
+        </div>
+        <div class="hs-row">
+          <div class="hs-key">Associated deals</div>
+          <div class="hs-val">0 — clean pipeline</div>
+        </div>
+      </div>
+
+      <!-- Panel 3 -->
+      <div class="wc-panel">
+        <div class="panel-label">Event timeline</div>
+        <div class="event-timeline">
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>Jun 23</strong> — SCW Session 1 · Score 7 · 44.5 min</div></div>
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>Jun 1</strong> — Live Demo S1 note logged by Aravindan <span class="et-muted">(on-demand, Score 1)</span></div></div>
+          <div class="et-item"><div class="et-dot attended"></div><div class="et-text"><strong>May 27</strong> — Live Demo S1 · <span class="et-muted">Tier C · Score 1 · 1 min live</span></div></div>
+        </div>
+        <div class="flag-block" style="margin-top:14px;">
+          <div class="flag-label">Watch item</div>
+          Recap email shows "Sent" not "Delivered" (Jordan + Jim both show Delivered). Confirm email deliverability before outreach — Aravindan to verify.
+        </div>
+      </div>
+
+      <!-- Panel 4 -->
+      <div class="wc-panel">
+        <div class="panel-label">Why this person</div>
+        <div class="backstory-text">
+          Juliana is an <strong>Analyst, Commissions at Forter</strong> — fraud protection software, HubSpot-confirmed Computer Software industry, strong ICP. As the person who runs day-to-day commissions calculations, comp debt isn't a strategic concept — it's her afternoon.<br><br>
+          She attended the May Live Demo and barely engaged (Score 1, 1 minute live). She showed up to SCW and stayed 44.5 minutes with a score of 7. That's a clear warming trajectory across two events in 4 weeks.<br><br>
+          Aravindan already updated her note on June 27 — the BDR is on it. <strong>The win gives the conversation a hook it didn't have before.</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FINAL NOTE -->
+<div class="final-box">
+  <p><strong>Next:</strong> Align on the $100 gift — personalised to each winner's role, pain signal, and the comp-debt narrative. Jordan's pain is detecting problems late (time back). Jim's is the H2 reset grind (energy back). Juliana's is the daily commissions manual labour (calm back). The gift should be proof of the summit's promise.</p>
+</div>
+
+</div>
